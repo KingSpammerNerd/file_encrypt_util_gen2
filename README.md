@@ -1,4 +1,4 @@
-# file_encrypt_util_gen2
+# kingcrypter
 
 file_encrypt_util, now with 2x more paranoia!
 
