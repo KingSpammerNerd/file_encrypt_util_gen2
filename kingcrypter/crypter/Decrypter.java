@@ -10,5 +10,12 @@ Proceed as for encryption, but in reverse (duh)
 */
 
 public class Decrypter {
+	//MessageDigest object, for SHA-256 hashing:
+	MessageDigest hash256=null;
+	
+	//Input file bytes:
+	private byte[] encInput=null;
+	
+	//Constructor:
 	
 }
