@@ -6,4 +6,4 @@ Planned: Develop a file encryption utility that utilizes a combination of symmet
 
 The encryption output file will be structures as follows: (Encrypted IV);(Ciphertext);(Hash of plaintext)
 
-Current development stage: Somewhere between null and Pre-Alpha, as you've probably guessed.
+Current development stage: Pre-Alpha. Needs code. A lot more code.
