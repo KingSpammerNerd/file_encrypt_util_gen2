@@ -1,5 +1,4 @@
 //This class implements functionality for encrypting raw data.
-//CONTINUE FROM LINE 87
 package kingcrypter.crypter;
 
 import java.io.*;
@@ -71,26 +70,51 @@ public class Encrypter {
 		this.keyPair=kpg.generateKeyPair();
 	}
 	
-	//Create IvParameterSpec for encryption, using the first 16 bytes of hash of endTime-startTime. Called from setPasswd:
+	//Create IvParameterSpec for encryption, using the first 16 bytes of hash of endTime-startTime. Called from setPasswd():
 	//Also, encrypt the IV in this step.
-	private void createIv(long timeDiff) {
+	private void createIv(long timeDiff) throws NoSuchAlgorithmException,InvalidKeyException,IllegalBlockSizeException,NoSuchPaddingException,BadPaddingException {
 		//Convert timeDiff to String:
 		String diffStr=String.valueOf(timeDiff);
 		//Hash diffStr:
 		byte diffStrHash[]=this.hash256.digest(diffStr.getBytes());
 		//Store first 16 bytes of diffStrHash as IvParameterSpec:
-		this.encIv=new IvParameterSpec(Arrays.copyOf(diffStrHash, 16));
-		//Encrypt the IV:
+		byte[] diffStrHash16=Arrays.copyOf(diffStrHash, 16);
+		this.encIv=new IvParameterSpec(diffStrHash16);
+		//Encrypt the IV bytes:
 		Cipher enc=Cipher.getInstance("RSA");
-		enc.init(this.rsaKeyLength);
-		byte[] encIvRsa=enc.doFinal(Cipher.ENCRYPT_MODE, this.keyPair.getPublic());
-		//CONTINUE FROM HERE
+		enc.init(Cipher.ENCRYPT_MODE, this.keyPair.getPublic());
+		byte[] encIvRsa=enc.doFinal(diffStrHash16);
+		//Store base64-encoded encrypted IV:
+		this.encIvRsa64=Base64.getEncoder().encodeToString(encIvRsa);
 	}
 	
 	//Get and store password. Confirmation of password is to be done by calling method:
-	public void setPasswd(String passwd) {
+	public void setPasswd(String passwd) throws Exception {
 		this.passwd=new String(passwd);
 		this.endTime=System.currentTimeMillis();
 		this.createIv(this.endTime-this.startTime);
+	}
+	
+	//Encrypt data:
+	public void doEncrypt() throws NoSuchAlgorithmException,InvalidKeyException,NoSuchPaddingException,BadPaddingException,InvalidAlgorithmParameterException,IllegalBlockSizeException {
+		//Hash password:
+		byte[] passKey=this.hash256.digest(this.passwd.getBytes());
+		//Create and initialize cipher:
+		Cipher enc=Cipher.getInstance("AES/CBC/PKCS5Padding");
+		enc.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(passKey, "AES"), this.encIv);
+		//Encrypt the data:
+		byte[] cipherText=enc.doFinal(this.plainInput);
+		//Encode cipherText to base64:
+		this.cipherText64=Base64.getEncoder().encodeToString(cipherText);
+	}
+	
+	//Get the output data, and return it, packaged in a nice, neat little Object:
+	public EncryptedOutput getEncrypted() {
+		//Get RSA Private key:
+		byte[] rsaPriv=this.keyPair.getPrivate().getEncoded();
+		//Encode rsaPriv to base64:
+		String rsaPriv64=Base64.getEncoder().encodeToString(rsaPriv);
+		//Return Output:
+		return new EncryptedOutput(this.encIvRsa64, this.cipherText64, this.hash64, rsaPriv64, this.rsaKeyLength);
 	}
 }
