@@ -19,6 +19,13 @@ public class EncryptedOutput {
 		this.rsaPriv64=rsaPriv64;
 		this.rsaKeyLength=rsaKeyLength;
 	}
+	public EncryptedOutput(String encIvRsa64, String cipherText64, String hash64, String rsaPriv64, String rsaKeyLength) {
+		this.encIvRsa64=encIvRsa64;
+		this.cipherText64=cipherText64;
+		this.hash64=hash64;
+		this.rsaPriv64=rsaPriv64;
+		this.rsaKeyLength=Integer.valueOf(rsaKeyLength);
+	}
 	
 	public String getEncIV() {
 		return this.encIvRsa64;
@@ -38,5 +45,10 @@ public class EncryptedOutput {
 	
 	public int getKeyLength() {
 		return this.rsaKeyLength;
+	}
+	
+	//If you'd rather not deal with the first five methods:
+	public String toString() {
+		return new String(this.encIvRsa64 + ";" + this.cipherText64 + ";" + this.hash64 + ";" + this.rsaPriv64 + ";" + String.valueOf(this.rsaKeyLength));
 	}
 }
