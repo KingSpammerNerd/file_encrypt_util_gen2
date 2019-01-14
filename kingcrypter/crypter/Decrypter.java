@@ -9,13 +9,60 @@ Process:
 Proceed as for encryption, but in reverse (duh)
 */
 
+import java.security.*;
+import java.security.spec.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.util.*;
+
 public class Decrypter {
 	//MessageDigest object, for SHA-256 hashing:
 	MessageDigest hash256=null;
 	
+	//Input AES IV:
+	private byte[] encIv=null;
+	
 	//Input file bytes:
 	private byte[] encInput=null;
+	//Base64-encoded hash of plaintext:
+	private String hash64=null;
 	
-	//Constructor:
+	//Input RSA Private key:
+	private PrivateKey rsaPriv=null;
+	//Input RSA key length:
+	private int keyLength=0;
 	
+	//Constructor. Also decrypts the IV:
+	public Decrypter(EncryptedOutput input) throws NoSuchAlgorithmException,InvalidKeySpecException,NoSuchPaddingException,BadPaddingException,InvalidKeyException,IllegalBlockSizeException {
+		//Get Private key length:
+		this.keyLength=input.getKeyLength();
+		//Get Private key:
+		String rsaPrivEncoded64=input.getPrivateKey();
+		byte[] rsaPrivEncoded=Base64.getDecoder().decode(rsaPrivEncoded64.getBytes());
+		X509EncodedKeySpec x509Priv=new X509EncodedKeySpec(rsaPrivEncoded);
+		KeyFactory pkFac=KeyFactory.getInstance("RSA");
+		this.rsaPriv=pkFac.generatePrivate(x509Priv);
+		//Get ciphertext and decode it:
+		byte[] encInput64=input.getCipherText().getBytes();
+		this.encInput=Base64.getDecoder().decode(encInput64);
+		//Get base64-encoded SHA-256 hash:
+		this.hash64=input.getHash();
+		//Get encrypted IV and decode it:
+		String encIvRsa64=input.getEncIV();
+		byte[] encIvRsa=Base64.getDecoder().decode(encIvRsa64);
+		//Decrypt AES IV:
+		Cipher dec=Cipher.getInstance("RSA");
+		dec.init(Cipher.DECRYPT_MODE, this.rsaPriv);
+		this.encIv=dec.doFinal(encIvRsa);
+	}
+	
+	//Perform decryption, given the file's password:
+	public void doDecrypt(String password) {
+		//TODO
+	}
+	
+	//Get the plaintext as a byte array:
+	public byte[] getOutput() {
+		//TODO
+	}
 }
