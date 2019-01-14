@@ -2,8 +2,8 @@
 
 file_encrypt_util, now with 2x more paranoia!
 
-Planned: Develop a file encryption library that utilizes a combination of symmetric and asymmetric encryption. Files are to be encrypted with an AES key, supplied by the user. The Initialization Vector is to consist of the system time, during encryption. The IV key is, in turn, encrypted with a random RSA public key, which will not be stored.
+Description: A file encryption library that utilizes a combination of symmetric and asymmetric encryption. Files are to be encrypted with an AES key, supplied by the user. The Initialization Vector is to consist of the difference between system time at the start and end of the data entry process prior to encryption. The IV is then, in turn, encrypted with a random RSA public key, which will not be stored.
 
-The encryption output file will be structures as follows: (Encrypted IV);(Ciphertext);(Hash of plaintext)
+In the end the output will consist the encrypted IV, the ciphertext, the plaintext's hash, the RSA private key and its size, encapsulated as an EncryptedOutput object.
 
-Current development stage: Pre-Alpha. Needs code. A lot more code.
+Current development stage: Pre-Alpha, almost functional.
