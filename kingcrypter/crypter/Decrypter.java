@@ -19,13 +19,15 @@ public class Decrypter {
 	//MessageDigest object, for SHA-256 hashing:
 	MessageDigest hash256=null;
 	
-	//Input AES IV:
-	private byte[] encIv=null;
+	//IV object:
+	private IvParameterSpec encIv=null;
 	
 	//Input file bytes:
 	private byte[] encInput=null;
 	//Base64-encoded hash of plaintext:
 	private String hash64=null;
+	//Output plaintext:
+	private byte[] decOutput=null;
 	
 	//Input RSA Private key:
 	private PrivateKey rsaPriv=null;
@@ -53,16 +55,24 @@ public class Decrypter {
 		//Decrypt AES IV:
 		Cipher dec=Cipher.getInstance("RSA");
 		dec.init(Cipher.DECRYPT_MODE, this.rsaPriv);
-		this.encIv=dec.doFinal(encIvRsa);
+		byte[] encIvBytes=dec.doFinal(encIvRsa);
+		this.encIv=new IvParameterSpec(encIvBytes);
 	}
 	
 	//Perform decryption, given the file's password:
-	public void doDecrypt(String password) {
-		//TODO
+	public void doDecrypt(String password) throws NoSuchAlgorithmException,InvalidKeyException,NoSuchPaddingException,BadPaddingException,InvalidAlgorithmParameterException,IllegalBlockSizeException {
+		//Get bytes from password:
+		byte[] pass=password.getBytes();
+		byte[] passHash=this.hash256.digest(pass);
+		//Create AES cipher:
+		Cipher dec=Cipher.getInstance("AES");
+		dec.init(Cipher.DECRYPT_MODE, new SecretKeySpec(passHash, "AES"), this.encIv);
+		//Decrypt data:
+		this.decOutput=dec.doFinal(this.encInput);
 	}
 	
 	//Get the plaintext as a byte array:
 	public byte[] getOutput() {
-		//TODO
+		return this.decOutput;
 	}
 }
