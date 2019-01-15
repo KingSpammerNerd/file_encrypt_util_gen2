@@ -16,9 +16,6 @@ import javax.crypto.spec.*;
 import java.util.*;
 
 public class Decrypter {
-	//MessageDigest object, for SHA-256 hashing:
-	MessageDigest hash256=null;
-	
 	//IV object:
 	private IvParameterSpec encIv=null;
 	
@@ -41,9 +38,9 @@ public class Decrypter {
 		//Get Private key:
 		String rsaPrivEncoded64=input.getPrivateKey();
 		byte[] rsaPrivEncoded=Base64.getDecoder().decode(rsaPrivEncoded64.getBytes());
-		X509EncodedKeySpec x509Priv=new X509EncodedKeySpec(rsaPrivEncoded);
+		PKCS8EncodedKeySpec pkcs8Priv=new PKCS8EncodedKeySpec(rsaPrivEncoded);
 		KeyFactory pkFac=KeyFactory.getInstance("RSA");
-		this.rsaPriv=pkFac.generatePrivate(x509Priv);
+		this.rsaPriv=pkFac.generatePrivate(pkcs8Priv);
 		//Get ciphertext and decode it:
 		byte[] encInput64=input.getCipherText().getBytes();
 		this.encInput=Base64.getDecoder().decode(encInput64);
@@ -63,9 +60,9 @@ public class Decrypter {
 	public void doDecrypt(String password) throws NoSuchAlgorithmException,InvalidKeyException,NoSuchPaddingException,BadPaddingException,InvalidAlgorithmParameterException,IllegalBlockSizeException {
 		//Get bytes from password:
 		byte[] pass=password.getBytes();
-		byte[] passHash=this.hash256.digest(pass);
+		byte[] passHash=MessageDigest.getInstance("SHA-256").digest(pass);
 		//Create AES cipher:
-		Cipher dec=Cipher.getInstance("AES");
+		Cipher dec=Cipher.getInstance("AES/CBC/PKCS5Padding");
 		dec.init(Cipher.DECRYPT_MODE, new SecretKeySpec(passHash, "AES"), this.encIv);
 		//Decrypt data:
 		this.decOutput=dec.doFinal(this.encInput);
