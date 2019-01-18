@@ -6,4 +6,4 @@ Description: A file encryption library that utilizes a combination of symmetric 
 
 In the end the output will consist the encrypted IV, the ciphertext, the plaintext's hash, the RSA private key and its size, encapsulated as an EncryptedOutput object.
 
-Current development stage: Alpha, all functions implemented.
+Current development stage: Release. Probably final, probably not. Don't wait up.
